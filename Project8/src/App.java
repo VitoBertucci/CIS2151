@@ -1,3 +1,5 @@
+//Done with part 1
+
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
