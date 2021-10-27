@@ -9,8 +9,8 @@ public class App
 {
     public static void main(String[] args) 
     {
-        //variables and other stuff
         String line = "";
+        String dataValue = "";
         String name = "";
         String food = "";
         Double cost;
@@ -27,12 +27,14 @@ public class App
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
             //USE WHILE LOOP TO:
+            int i = 0;
             while((line = bufferedReader.readLine()) != null) 
             {
-                StringTokenizer tokens = new StringTokenizer(line, ", ");
+
+                StringTokenizer tokens = new StringTokenizer(line, " ");
                 while(tokens.hasMoreTokens()) 
                 {
-                    //TOKENIZE LINE STRING INTO STRING NAME, STRING FOOD, DOUBLE COST
+                    //TOKENIZE LINE STRING INTO STRING NAME, STRING FOOD, DOUBLE COST AND STORE IN THEIR ARRAYS
                     name = tokens.nextToken();
                     food = tokens.nextToken();
                     cost = Double.parseDouble(tokens.nextToken());
@@ -42,19 +44,17 @@ public class App
 
                     //ADD THE OBJECT INTO THE ARRAY
                     restaurants.add(ffn);
-                }
-            }
+                } 
+            } //END THE LOOP
 
-            fileReader.close();
+            //CLOSE THE FILE
+            bufferedReader.close();
 
         } catch (IOException ioe)
         {
             ioe.toString();
             System.exit(1);
-        }
-
-
-        
+        }        
     
     //______________END OF PART 1________________________________________________________________
         
@@ -62,10 +62,6 @@ public class App
         File binaryFile = new File("FastFoodInfo.dat");
         try(
         //open file and create outputStream
-        FileInputStream fileInputStream = new FileInputStream(binaryFile);
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
-        DataInputStream dataInputStream = new DataInputStream(bufferedInputStream);
-
         FileOutputStream fileOutputStream = new FileOutputStream(binaryFile);
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
         DataOutputStream output = new DataOutputStream(bufferedOutputStream);
@@ -75,16 +71,17 @@ public class App
             //USE A LOOP TO GO THROUGH ARRAYLIST
             for (int i = 0; i < restaurants.size(); i++)
             {
+                //GET AN ARRAY LIST OBJECT
                 FastFoodNew ffn = restaurants.get(i);
-                output.writeChars(ffn.getName() + " ");
-                output.writeChars(ffn.getFoodType() + " ");
-                output.writeDouble(ffn.getCost());
-                output.writeChars("\n");
-            }
-            //close the outputstream
-            output.close();
+                //USE ITS GET METHODS TO GET EACH DATA MEMBER AND 
+                //OUTPUT TO BINARY ACCESS FILE
+                output.writeUTF(ffn.getName());
+                output.writeUTF(ffn.getFoodType());
+                output.writeUTF(String.valueOf(ffn.getCost()) + "\n");
+            } //END THE LOOP
+            
             //CLOSE THE FILE
-            fileInputStream.close();
+            output.close();
 
         } catch (FileNotFoundException fnfe) 
         {
@@ -94,10 +91,40 @@ public class App
             System.out.println("File error");
         }
 
-    //______________END OF PART 2________________________________________________________________
+    //______________END OF PART 2________________________________________________________________   
 
-    
-    
+        try 
+        {
+            //OPEN TXT FILE 
+            PrintWriter writer = new PrintWriter("FastFoodReport.txt");
+
+            //OPEN BINARY ACCESS FILE FOR INPUT
+            FileInputStream inputStream = new FileInputStream("FastFoodInfo.dat");
+            DataInputStream dataStream = new DataInputStream(inputStream);
+
+            //LOOP TO READ EACH DATA ITEM
+            for (int i = 1; i < 6; i++)
+            {
+                //OUTPUT EACH DATA VALUE INTO THE TEXT FILE
+                dataValue = dataStream.readUTF();
+                writer.print("Restaurant: " + dataValue);
+                dataValue = dataStream.readUTF();
+                writer.print("     Best known for: " + (dataValue));
+                dataValue = dataStream.readUTF();
+                writer.print("     Cost: " + (dataValue));
+            } //END THE LOOP
+
+            //CLOSE THE DATA FILE
+            dataStream.close();
+
+            //CLOSE THE TEXT FILE
+            writer.close();
+            
+        } catch (IOException ioe)
+        {
+            System.exit(1);
+        }
+
     }
 }
 

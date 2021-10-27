@@ -1,0 +1,5 @@
+Restaurant: McDonalds     Best known for: burgers     Cost: 4.99
+Restaurant: TacoBell     Best known for: tacos     Cost: 1.99
+Restaurant: Starbucks     Best known for: coffee     Cost: 5.99
+Restaurant: Arbys     Best known for: burgers     Cost: 3.99
+Restaurant: BigBoy     Best known for: hotdogs     Cost: 2.99
