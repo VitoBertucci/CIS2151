@@ -1,1 +1,5 @@
-TacoBell tacos 2.99
+McDonald's burgers 4.99
+Tacobell tacos 1.99
+Starbucks coffee 5.99
+Arby's burgers 3.99
+OutbackSteakhouse steak 19.99

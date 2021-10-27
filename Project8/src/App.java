@@ -7,81 +7,97 @@ import java.io.*;
 
 public class App 
 {
-
-    //method to output string to file
-    public static void write(PrintWriter out, String str)
-    {
-            out.println(str);
-            out.close();  
-    }
-
     public static void main(String[] args) 
     {
         //variables and other stuff
-        String again = "y";
         String line = "";
         String name = "";
         String food = "";
         Double cost;
-        Scanner kb = new Scanner(System.in);
-        File file = new File("FastFoodData.txt");
+        
+        File textFile = new File("FastFoodData.txt");
 
         //DECLARE AN ARRAYLIST OF FASTFOODNEW OBJECTS
         ArrayList<FastFoodNew> restaurants = new ArrayList<FastFoodNew>();
 
-
-        while(again.equalsIgnoreCase("y"))
+        //READ A LINE OF INPUT FROM THE FILE
+        try
         {
-            //OPEN THE TEXT FILE FOR INPUT
-            try
-            {
-                //open file to be read
-                FileReader fileReader = new FileReader(file);
-                BufferedReader bufferedReader = new BufferedReader(fileReader);
+            FileReader fileReader = new FileReader(textFile);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-                //create printWriter for output to file
-                FileWriter fileWriter = new FileWriter(file);
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                PrintWriter infoWriter = new PrintWriter(bufferedWriter);
-
-                //get restaurant info in terminal and output to textfile
-                System.out.println("Enter name of restaurant, its food type, and cost of that food: ");
-                line = kb.nextLine();
-                write(infoWriter, line);
-            } 
-            catch (IOException ioe)
-            {
-                ioe.toString();
-                System.exit(1);
-            }
-            
-            StringTokenizer tokens = new StringTokenizer(line, ", ");
             //USE WHILE LOOP TO:
-            while(tokens.hasMoreTokens()) 
+            while((line = bufferedReader.readLine()) != null) 
             {
-                //TOKENIZE LINE STRING INTO STRING NAME, STRING FOOD, DOUBLE COST
-                name = tokens.nextToken();
-                food = tokens.nextToken();
-                cost = Double.parseDouble(tokens.nextToken());
+                StringTokenizer tokens = new StringTokenizer(line, ", ");
+                while(tokens.hasMoreTokens()) 
+                {
+                    //TOKENIZE LINE STRING INTO STRING NAME, STRING FOOD, DOUBLE COST
+                    name = tokens.nextToken();
+                    food = tokens.nextToken();
+                    cost = Double.parseDouble(tokens.nextToken());
 
-                //CALL NON-DEFAULT CONSTRUCTOR AND USE THOSE STRINGS AS PARAMETERS
-                FastFoodNew ffn = new FastFoodNew(name, food, cost);
+                    //CALL NON-DEFAULT CONSTRUCTOR AND USE THOSE STRINGS AS PARAMETERS
+                    FastFoodNew ffn = new FastFoodNew(name, food, cost);
 
-                //ADD THE OBJECT INTO THE ARRAY
-                restaurants.add(ffn);
+                    //ADD THE OBJECT INTO THE ARRAY
+                    restaurants.add(ffn);
+                }
             }
-            //END OF LOOP
-            System.out.println("Enter another object? (y/n)");
-            again = kb.nextLine();
-        
+
+            fileReader.close();
+
+        } catch (IOException ioe)
+        {
+            ioe.toString();
+            System.exit(1);
         }
 
-        //display all objects
-        for(int i = 0; i < restaurants.size(); i++)
-        {
-            restaurants.get(i).display();
-        }
+
         
+    
+    //______________END OF PART 1________________________________________________________________
+        
+        //OPEN BINARY ACCESS FILE FOR OUTPUT
+        File binaryFile = new File("FastFoodInfo.dat");
+        try(
+        //open file and create outputStream
+        FileInputStream fileInputStream = new FileInputStream(binaryFile);
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+        DataInputStream dataInputStream = new DataInputStream(bufferedInputStream);
+
+        FileOutputStream fileOutputStream = new FileOutputStream(binaryFile);
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+        DataOutputStream output = new DataOutputStream(bufferedOutputStream);
+        
+        )
+        {
+            //USE A LOOP TO GO THROUGH ARRAYLIST
+            for (int i = 0; i < restaurants.size(); i++)
+            {
+                FastFoodNew ffn = restaurants.get(i);
+                output.writeChars(ffn.getName() + " ");
+                output.writeChars(ffn.getFoodType() + " ");
+                output.writeDouble(ffn.getCost());
+                output.writeChars("\n");
+            }
+            //close the outputstream
+            output.close();
+            //CLOSE THE FILE
+            fileInputStream.close();
+
+        } catch (FileNotFoundException fnfe) 
+        {
+            System.exit(1);
+        } catch (IOException ioe)
+        {
+            System.out.println("File error");
+        }
+
+    //______________END OF PART 2________________________________________________________________
+
+    
+    
     }
 }
 
