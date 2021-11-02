@@ -1,19 +1,44 @@
-//Done with part 1
-
-import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
 import java.io.*;
 
+//class for the invalidNumberOfValuesException
+class InvalidNumberOfValuesException extends Exception 
+    {
+        public InvalidNumberOfValuesException()
+        {
+            super("Incorrect number of values for restaurant");
+        }
+    }
+
 public class App 
 {
-    public static void main(String[] args) 
+    //method to see if a string is numeric in value or not
+    public static Boolean isNumeric (String str)
+    {
+        if(str == null)
+        {
+            return false;
+        }
+        try
+        {
+            Double d = Double.parseDouble(str);
+        } catch (NumberFormatException e)
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    public static void main(String[] args)
     {
         String line = "";
         String dataValue = "";
         String name = "";
         String food = "";
-        Double cost;
+        Double cost = 0.0;
+        int lineCount = 0;
+        int numberTokens = 0;
         
         File textFile = new File("FastFoodData.txt");
 
@@ -27,47 +52,67 @@ public class App
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
             //USE WHILE LOOP TO:
-            int i = 0;
             while((line = bufferedReader.readLine()) != null) 
             {
-
-                StringTokenizer tokens = new StringTokenizer(line, " ");
-                while(tokens.hasMoreTokens()) 
+                try 
                 {
-                    //TOKENIZE LINE STRING INTO STRING NAME, STRING FOOD, DOUBLE COST AND STORE IN THEIR ARRAYS
-                    name = tokens.nextToken();
-                    food = tokens.nextToken();
-                    cost = Double.parseDouble(tokens.nextToken());
+                    StringTokenizer tokens = new StringTokenizer(line, " ");
+                    numberTokens = tokens.countTokens();
 
-                    //CALL NON-DEFAULT CONSTRUCTOR AND USE THOSE STRINGS AS PARAMETERS
-                    FastFoodNew ffn = new FastFoodNew(name, food, cost);
+                    //throw InvalidNumberOfValuesException if number of values for restaurant is < 3 or > 3 
+                    if (numberTokens < 3 || numberTokens > 3)
+                    {
+                        throw new InvalidNumberOfValuesException();
+                    }
 
-                    //ADD THE OBJECT INTO THE ARRAY
-                    restaurants.add(ffn);
-                } 
+                    while(tokens.hasMoreTokens()) 
+                    {
+                        //TOKENIZE LINE STRING INTO STRING NAME, STRING FOOD, DOUBLE COST AND STORE IN THEIR ARRAYS
+                        name = tokens.nextToken();
+                        food = tokens.nextToken();
+                        cost = Double.parseDouble(tokens.nextToken());
+
+                        //if name or food is not a non-numeric string, throw nfe
+                        if(isNumeric(food) == true || isNumeric(name) == true)
+                        {
+                            throw new NumberFormatException();
+                        }
+                        
+                        //CALL NON-DEFAULT CONSTRUCTOR AND USE THOSE STRINGS AS PARAMETERS
+                        FastFoodNew ffn = new FastFoodNew(name, food, cost);
+
+                        //ADD THE OBJECT INTO THE ARRAY
+                        restaurants.add(ffn);
+                    } 
+                //NumberFormatException omits the restaurant with the exception
+                } catch (NumberFormatException nfe)
+                {
+                    System.out.println("Name and food must be string, cost must be a double");
+                //InvalidNumberOfValuesException omits the restaurant that does not have exactly 3 values with it
+                } catch (InvalidNumberOfValuesException inve)
+                {
+                    System.out.println("Each line on the txt file must have three components");
+                }
             } //END THE LOOP
 
             //CLOSE THE FILE
             bufferedReader.close();
-
+        
+        //catch IO exceptions and exit program
         } catch (IOException ioe)
         {
             ioe.toString();
             System.exit(1);
-        }        
-    
-    //______________END OF PART 1________________________________________________________________
-        
+        }
+
         //OPEN BINARY ACCESS FILE FOR OUTPUT
         File binaryFile = new File("FastFoodInfo.dat");
-        try(
-        //open file and create outputStream
-        FileOutputStream fileOutputStream = new FileOutputStream(binaryFile);
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-        DataOutputStream output = new DataOutputStream(bufferedOutputStream);
-        
-        )
+        try
         {
+            //open file and create outputStream
+            FileOutputStream fileOutputStream = new FileOutputStream(binaryFile);
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+            DataOutputStream output = new DataOutputStream(bufferedOutputStream);
             //USE A LOOP TO GO THROUGH ARRAYLIST
             for (int i = 0; i < restaurants.size(); i++)
             {
@@ -78,6 +123,7 @@ public class App
                 output.writeUTF(ffn.getName());
                 output.writeUTF(ffn.getFoodType());
                 output.writeUTF(String.valueOf(ffn.getCost()) + "\n");
+                lineCount++;
             } //END THE LOOP
             
             //CLOSE THE FILE
@@ -91,8 +137,6 @@ public class App
             System.out.println("File error");
         }
 
-    //______________END OF PART 2________________________________________________________________   
-
         try 
         {
             //OPEN TXT FILE 
@@ -103,7 +147,7 @@ public class App
             DataInputStream dataStream = new DataInputStream(inputStream);
 
             //LOOP TO READ EACH DATA ITEM
-            for (int i = 1; i < 6; i++)
+            for (int i = 0; i < lineCount ; i++)
             {
                 //OUTPUT EACH DATA VALUE INTO THE TEXT FILE
                 dataValue = dataStream.readUTF();
@@ -111,7 +155,7 @@ public class App
                 dataValue = dataStream.readUTF();
                 writer.print("     Best known for: " + (dataValue));
                 dataValue = dataStream.readUTF();
-                writer.print("     Cost: " + (dataValue));
+                writer.print("     Cost: $" + (dataValue));
             } //END THE LOOP
 
             //CLOSE THE DATA FILE
@@ -124,7 +168,6 @@ public class App
         {
             System.exit(1);
         }
-
     }
 }
 
