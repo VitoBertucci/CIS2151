@@ -2,8 +2,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.text.*;
-import java.util.*;
 
 public class App extends JFrame
 {
@@ -16,18 +14,18 @@ public class App extends JFrame
     private String[] logos2 = {"redwings.gif","lions.gif","tigers.gif","pistons.gif"};
 
     private ImageIcon []logos = new ImageIcon[4];
-    private double[] ticketPrices = {50.0,100.0,35.0,40.0};
+    private double[] ticketPrices = {40.0,50.0,100.0};
+    private double currentTicketPrice = 0.0;
     private Icon[] teamIcon = new ImageIcon[4];
 
     private int teamIndex; //store selection from JComboBox (index into array of team names)
     private double surcharge; //store extra charge based on seating choice
-    private int index;
     private int numTickets; //to store input from JSlider
     private int[] itemindex; //to store indices of all selected souvenirs in the JList
     private String seating;   //store selection from JRadioButtonssaa   
 
     private JSlider slider;
-    private JButton addToCartButton;
+    private JButton orderButton;
     private JButton clearSelectionButton;
     private JButton exitButton;
     private JRadioButton lowerDeck = new JRadioButton("Lower Deck");
@@ -36,9 +34,6 @@ public class App extends JFrame
     private ButtonGroup seatGroup;
     private JComboBox teamBox;
     private JList nameList;
-
-
-
 
     public App() 
     {
@@ -56,25 +51,26 @@ public class App extends JFrame
 
         //create south panel
         JPanel southPanel = new JPanel();
+        southPanel.setLayout(new GridLayout(1,2));
         southPanel.setBackground(Color.CYAN);
 
         //create east panel
         JPanel eastPanel = new JPanel();
-        eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
+        eastPanel.setLayout(new GridLayout(4,1));
         eastPanel.setBackground(Color.LIGHT_GRAY);
 
         //create west panel
         JPanel westPanel = new JPanel();
-        westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.Y_AXIS));
+        westPanel.setLayout(new GridLayout(4,1));
         westPanel.setBackground(Color.LIGHT_GRAY);
 
         //create ceneter ponel that has two other panels, left and right
         JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.X_AXIS));
+        centerPanel.setLayout(new GridLayout(1,2));
         JPanel centerLeftPanel = new JPanel();
-        centerLeftPanel.setLayout(new BoxLayout(centerLeftPanel, BoxLayout.Y_AXIS));
+        centerLeftPanel.setLayout(new GridLayout(2,1));
         JPanel centerRightPanel = new JPanel();
-        centerRightPanel.setLayout(new BoxLayout(centerRightPanel, BoxLayout.Y_AXIS));
+        centerRightPanel.setLayout(new GridLayout(2,1));
         centerPanel.add(centerLeftPanel);
         centerPanel.add(centerRightPanel);
 
@@ -99,24 +95,123 @@ public class App extends JFrame
         slider.setMajorTickSpacing(1);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
+        slider.setValue(0);
+
+        //event handler for slider
+        slider.addChangeListener
+        (new ChangeListener()
+            {
+                public void stateChanged(ChangeEvent e)
+                    {
+                        numTickets = slider.getValue();
+                    }
+            }
+        );
         southPanel.add(slider, BorderLayout.SOUTH);
 
         //EAST panel: a JLabel: Click Selection, 3 Buttons
         JLabel selection = new JLabel("Click Selection");
-        addToCartButton = new JButton("Add to cart");
+
+        //event handler for order button
+        orderButton = new JButton("Order");
+        orderButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(e.getSource() == orderButton)
+                {
+                    
+                }
+            }
+        });
+
+        //event handler for clear selection button
         clearSelectionButton = new JButton("Clear Selection");
+        clearSelectionButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(e.getSource() == clearSelectionButton)
+                {
+                    nameList.clearSelection();
+                    teamIndex = 0;
+                    itemindex = null;
+                    
+                    slider.setValue(0);
+                    lowerDeck.setSelected(false);
+                    upperDeck.setSelected(false);
+                    luxuryBox.setSelected(false);
+                    seating = "";
+                }
+            }
+        });
+
+        //event handler for exit button
         exitButton = new JButton("Exit");
+        exitButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(e.getSource() == exitButton)
+                {
+                    System.exit(1);
+                }
+            }
+        });
+
         eastPanel.add(selection);
-        eastPanel.add(addToCartButton);
+        eastPanel.add(orderButton);
         eastPanel.add(clearSelectionButton);
         eastPanel.add(exitButton);
 
         //WEST panel:  a JLabel: Seat selections and 3 JRadioButtons as shown above
         JLabel seatSelect = new JLabel("Seat Selection:");
         seatGroup = new ButtonGroup();
+        
+        //event handler for lowerdeck radiobutton
+        lowerDeck.addItemListener(new ItemListener() 
+        {
+            public void itemStateChanged(ItemEvent e)
+            {
+                if(e.getSource() == lowerDeck)
+                {
+                    seating = "Lower Deck";
+                    currentTicketPrice = ticketPrices[0];
+
+                }
+            }
+        });
         seatGroup.add(lowerDeck);
+
+        //event handler for upperdeck radiobutton
+        upperDeck.addItemListener(new ItemListener() 
+        {
+            public void itemStateChanged(ItemEvent e)
+            {
+                if(e.getSource() == upperDeck)
+                {
+                    seating = "Upper Deck";
+                    currentTicketPrice = ticketPrices[1];
+                }
+            }
+        });
         seatGroup.add(upperDeck);
+
+        //event handler for luxurybox radiobutton
+        luxuryBox.addItemListener(new ItemListener() 
+        {
+            public void itemStateChanged(ItemEvent e)
+            {
+                if(e.getSource() == luxuryBox)
+                {
+                    seating = "Luxury Box";
+                    currentTicketPrice = ticketPrices[2];
+                }
+            }
+        });
         seatGroup.add(luxuryBox);
+
+        //add label and buttons to panel
         westPanel.add(seatSelect);
         westPanel.add(lowerDeck);
         westPanel.add(upperDeck);
@@ -133,21 +228,40 @@ public class App extends JFrame
         //add combo box to left panel
         teamBox = new JComboBox(teamNames);
         teamBox.setMaximumRowCount(3);
+
+        //event handler for combox
+        teamBox.addItemListener(new ItemListener()
+        {
+            public void itemStateChanged(ItemEvent e)
+            {
+                if(e.getSource() == teamBox)
+                {
+                    teamIndex = teamBox.getSelectedIndex();
+                }
+            }
+        });
         centerLeftPanel.add(teamBox);
 
         //add list to right panel
         nameList = new JList(itemNames);
         nameList.setVisibleRowCount(5);
-        centerRightPanel.add(new JScrollPane(nameList));
         nameList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+        //event handler for lsit
+        nameList.addListSelectionListener
+        (new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e)
+            {
+                itemindex = nameList.getSelectedIndices();
+            }
+        });
+        centerRightPanel.add(new JScrollPane(nameList));
     }
 
-
-
-    public static void main(String[] args) 
+    public static void main(String[] args)
     {
         App app = new App();
-        app.setSize(800,330);
+        app.setSize(800,400);
         app.setVisible(true);
         app.setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
