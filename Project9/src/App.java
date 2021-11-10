@@ -6,7 +6,7 @@ import java.awt.event.*;
 public class App extends JFrame
 {
     private Container c = getContentPane();
-    private TextArea ta = new TextArea(10,10);
+    private TextArea ta = new TextArea(20,25);
     private String[] itemNames = {"bobblehead", "thunder stick", "foam paw", "tee shirt", "sweat shirt","cap", "knit hat", "mug", "pennant" };
     private double[] prices = {12.0,9.0,5.0,15.0,25.0,5.0,10.0,8.0,12.0,3.0};
 
@@ -15,14 +15,16 @@ public class App extends JFrame
 
     private ImageIcon []logos = new ImageIcon[4];
     private double[] ticketPrices = {40.0,50.0,100.0};
-    private double currentTicketPrice = 0.0;
     private Icon[] teamIcon = new ImageIcon[4];
 
+    private double seatPrice;
+    private double ticketCost; //store the cost of the ticket
     private int teamIndex; //store selection from JComboBox (index into array of team names)
     private double surcharge; //store extra charge based on seating choice
     private int numTickets; //to store input from JSlider
     private int[] itemindex; //to store indices of all selected souvenirs in the JList
     private String seating;   //store selection from JRadioButtonssaa   
+    private double subtotal; // store subtotal of transaction
 
     private JSlider slider;
     private JButton orderButton;
@@ -36,7 +38,7 @@ public class App extends JFrame
     private JList nameList;
 
     public App() 
-    {
+    {   
         //for loop from rubric
         for (int i = 0; i < logos.length; i++)
         {
@@ -47,12 +49,12 @@ public class App extends JFrame
         //create main borderlayout
         c.setLayout(new BorderLayout());
         JPanel northPanel = new JPanel();
-        northPanel.setBackground(Color.CYAN);
+        northPanel.setBackground(Color.DARK_GRAY);
 
         //create south panel
         JPanel southPanel = new JPanel();
         southPanel.setLayout(new GridLayout(1,2));
-        southPanel.setBackground(Color.CYAN);
+        southPanel.setBackground(Color.DARK_GRAY);
 
         //create east panel
         JPanel eastPanel = new JPanel();
@@ -84,16 +86,18 @@ public class App extends JFrame
         //NORTH panel:  a JLabel with the title: Tickets...  (choose a large font and colors of your choice)
         JLabel ticketLabel = new JLabel("Tickets Tickets Tickets");
         ticketLabel.setFont(new Font("Calibri", Font.PLAIN, 40));
-        ticketLabel.setForeground(Color.blue);
+        ticketLabel.setForeground(Color.WHITE);
         northPanel.add(ticketLabel, BorderLayout.NORTH);
 
         //SOUTH Panel: a JLabel followed by a JSlider.
         JLabel sliderLabel = new JLabel("Select Number of Tickets:");
         sliderLabel.setFont(new Font ("Calibri", Font.ITALIC, 20));
+        sliderLabel.setForeground(Color.WHITE);
         southPanel.add(sliderLabel, BorderLayout.SOUTH);
         slider = new JSlider(SwingConstants.HORIZONTAL, 0,10,5);
         slider.setMajorTickSpacing(1);
         slider.setPaintTicks(true);
+        slider.setForeground(Color.WHITE);
         slider.setPaintLabels(true);
         slider.setValue(0);
 
@@ -119,7 +123,19 @@ public class App extends JFrame
             public void actionPerformed(ActionEvent e)
             {
                 if(e.getSource() == orderButton)
-                {
+                {   
+                    ta.setText(null);
+                    ta.setEditable(false);
+                    ta.append("TEAM  " + teamNames[teamIndex]);
+                    ta.append("\nTicket Cost  " + seatPrice);
+                    ta.append("\nSurcharge  " + surcharge);
+                    ta.append("\nItems Ordered:");
+                    //output selected items from list
+                    ta.append("\n\nSubtotal:  " + seatPrice);
+                    ta.append("\n\nSets Ordered:  " + numTickets);
+                    ta.append("\n\nTotal Cost:  " + (seatPrice * numTickets));
+
+                    JOptionPane.showMessageDialog(null, ta, "Your Order", JOptionPane.INFORMATION_MESSAGE, logos[teamIndex]);
                     
                 }
             }
@@ -136,12 +152,14 @@ public class App extends JFrame
                     nameList.clearSelection();
                     teamIndex = 0;
                     itemindex = null;
-                    
                     slider.setValue(0);
                     lowerDeck.setSelected(false);
                     upperDeck.setSelected(false);
                     luxuryBox.setSelected(false);
                     seating = "";
+                    seatPrice = 0.0;
+                    surcharge = 0.0;
+                    subtotal = 0.0;
                 }
             }
         });
@@ -159,6 +177,7 @@ public class App extends JFrame
             }
         });
 
+        //add components to east panel
         eastPanel.add(selection);
         eastPanel.add(orderButton);
         eastPanel.add(clearSelectionButton);
@@ -173,11 +192,10 @@ public class App extends JFrame
         {
             public void itemStateChanged(ItemEvent e)
             {
-                if(e.getSource() == lowerDeck)
-                {
+                if(e.getSource() == lowerDeck && lowerDeck.isSelected() == true)
+                {   
+                    seatPrice = ticketPrices[0];
                     seating = "Lower Deck";
-                    currentTicketPrice = ticketPrices[0];
-
                 }
             }
         });
@@ -188,10 +206,10 @@ public class App extends JFrame
         {
             public void itemStateChanged(ItemEvent e)
             {
-                if(e.getSource() == upperDeck)
+                if(e.getSource() == upperDeck && upperDeck.isSelected() == true)
                 {
+                    seatPrice = ticketPrices[1];
                     seating = "Upper Deck";
-                    currentTicketPrice = ticketPrices[1];
                 }
             }
         });
@@ -202,10 +220,10 @@ public class App extends JFrame
         {
             public void itemStateChanged(ItemEvent e)
             {
-                if(e.getSource() == luxuryBox)
+                if(e.getSource() == luxuryBox && luxuryBox.isSelected() == true)
                 {
+                    seatPrice = ticketPrices[2];
                     seating = "Luxury Box";
-                    currentTicketPrice = ticketPrices[2];
                 }
             }
         });
