@@ -10,6 +10,6 @@ public class Turtle extends Animal
     //dog speak method
     public void speak()
     {
-        speak(Turtle -> System.out.println(getNameAndType() + " says nothing (no vocal chords)"));
+        speak(turtle -> turtle.speak = (turtle.getNameAndType() + " says nothing (no vocal chords)"));
     }
 }

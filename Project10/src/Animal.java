@@ -1,29 +1,33 @@
+import javax.swing.*;
+import java.util.ArrayList;
 public abstract class Animal 
 {
     //each animal get a name and type
     public static String name;
     public static String type;
+    public String speak;
 
-    //interface for lamda
-    public interface Consumer<T>
+    //constructor
+    public Animal(String name)
     {
-        void accept(T t);
+        setName(name);
+        speak = "";
     }
 
     //speak method for subclasses to use
     public abstract void speak();
     
     //lamda speak method
+    public interface Consumer<T>
+    {
+        void accept(T t);
+    }
     protected void speak(Consumer<Animal> consumer)
     {
         consumer.accept(this);
     }
 
-    //constructor
-    public Animal(String name)
-    {
-        setName(name);
-    }
+    
 
     //sets and gets
     public String getName()

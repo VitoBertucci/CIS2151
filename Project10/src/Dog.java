@@ -10,6 +10,7 @@ public class Dog extends Animal
     //dog speak method
     public void speak()
     {
-        speak(Dog -> System.out.println(getNameAndType() + " says Woof Woof"));
+        speak(dog -> dog.speak = (dog.getNameAndType() + " says woof"));
     }
+    
 }
